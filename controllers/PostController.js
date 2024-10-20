@@ -27,12 +27,12 @@ export const getOne = async (req, res) => {
       if (err) {
         console.log(err);
         return res.status(500).json({
-          message: "Failed to return the post",
+          message: "Не удалось получить статью",
         });
       }
       if (!doc) {
         return res.status(404).json({
-          message: "Post not found",
+          message: "Статья не найдена",
         });
       }
       return res.json(doc);
@@ -88,5 +88,41 @@ export const create = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "Не удалось создать статью" });
+  }
+};
+export const update = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    PostModel.updateOne(
+      {
+        _id: postId,
+      },
+      {
+        title: req.body.title,
+        text: req.body.text,
+        imageUrl: req.body.imageUrl,
+        tags: req.body.tags,
+        user: req.userId,
+      },
+      {
+        returnDocument: "after",
+      }
+    ).then((doc, err) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          message: "Не удалось изменить статью",
+        });
+      }
+      if (!doc) {
+        return res.status(404).json({
+          message: "Статья не найдена",
+        });
+      }
+      return res.json({ msg: "" });
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: "Не удалось изменить статью" });
   }
 };
