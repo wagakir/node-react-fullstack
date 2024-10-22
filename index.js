@@ -1,12 +1,14 @@
 import express from "express";
 import mongoose from "mongoose";
 import multer from "multer";
+import cors from "cors";
 
 import { loginValidation, registerValidation } from "./validations/auth.js";
 import checkAuth from "./utils/checkAuth.js";
 import * as UserController from "./controllers/UserController.js";
 import * as PostController from "./controllers/PostController.js";
 import { postCreateValidation } from "./validations/post.js";
+import handleValidationErrors from "./utils/handleValidationErrors.js";
 
 mongoose
   .connect(
@@ -33,12 +35,24 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
+app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
-app.post("/auth/login", loginValidation, UserController.login);
-app.post("/auth/register", registerValidation, UserController.register);
+app.post(
+  "/auth/login",
+  loginValidation,
+  handleValidationErrors,
+
+  UserController.login
+);
+app.post(
+  "/auth/register",
+  registerValidation,
+  handleValidationErrors,
+
+  UserController.register
+);
 app.get("/auth/me", checkAuth, UserController.getMe);
 
 app.post("/upload", checkAuth, upload.single("image"), async (req, res) => {
@@ -49,6 +63,8 @@ app.post("/upload", checkAuth, upload.single("image"), async (req, res) => {
     res.status(500).json({ msg: "Не удалось получить статьи" });
   }
 });
+
+app.get("/tags", PostController.getLastTags);
 
 app.get("/posts", PostController.getAll);
 app.get("/posts/:id", PostController.getOne);
