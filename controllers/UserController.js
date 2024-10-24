@@ -26,7 +26,7 @@ export const register = async (req, res) => {
     res.json({ ...userData, token });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: "Ошибка при регистрации" });
+    res.status(500).json({ message: "Ошибка при регистрации" });
   }
 };
 export const login = async (req, res) => {
